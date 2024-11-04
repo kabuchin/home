@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>めぐみん Birthday message</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #fc1d1d;
+            --secondary-color: #ff8080;
+            --background-color: #fcecec;
+            --text-color: #333;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-color);
+        }
+        .container {
+            background-color: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(255, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+            font-size: 2rem;
+        }
+        .character-icon {
+            display: block;
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 2rem;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 5px 15px rgba(253, 168, 168, 0.2);
+        }
+        .audio-player {
+            background-color: var(--background-color);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .audio-player h2 {
+            margin-top: 0;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .play-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .play-button:hover {
+            background-color: var(--secondary-color);
+        }
+        .progress-bar {
+            flex-grow: 1;
+            height: 10px;
+            background-color: #f8dddc;
+            border-radius: 5px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .progress {
+            width: 0;
+            height: 100%;
+            background-color: var(--primary-color);
+            transition: width 0.1s linear;
+        }
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 1rem;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
+            .character-icon {
+                width: 100px;
+                height: 100px;
+            }
+            .play-button {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>めぐみん</h1>
+        <img src="character.png" alt="キャラクターアイコン" class="character-icon">
+        
+        <div class="audio-player">
+            <h2>ボイスメッセージ 1</h2>
+            <div class="audio-controls">
+                <button class="play-button" onclick="togglePlay(0)">
+                    <i class="fas fa-play"></i>
+                </button>
+                <div class="progress-bar" onclick="seek(event, 0)">
+                    <div class="progress" id="progress-0"></div>
+                </div>
+            </div>
+        </div>
+
+    <script>
+        const audioSources = [
+            '001.mp3'
+        ];
+
+        const audioElements = audioSources.map(src => {
+            const audio = new Audio(src);
+            audio.addEventListener('timeupdate', updateProgress);
+            audio.addEventListener('ended', resetButton);
+            return audio;
+        });
+
+        function togglePlay(index) {
+            const audio = audioElements[index];
+            const button = document.querySelectorAll('.play-button')[index];
+            const icon = button.querySelector('i');
+
+            if (audio.paused) {
+                audioElements.forEach((a, i) => {
+                    if (i !== index) {
+                        a.pause();
+                        document.querySelectorAll('.play-button')[i].innerHTML = '<i class="fas fa-play"></i>';
+                    }
+                });
+                audio.play();
+                icon.className = 'fas fa-pause';
+            } else {
+                audio.pause();
+                icon.className = 'fas fa-play';
+            }
+        }
+
+        function updateProgress(event) {
+            const audio = event.target;
+            const index = audioElements.indexOf(audio);
+            const progressBar = document.getElementById(`progress-${index}`);
+            const percent = (audio.currentTime / audio.duration) * 100;
+            progressBar.style.width = `${percent}%`;
+        }
+
+        function resetButton(event) {
+            const audio = event.target;
+            const index = audioElements.indexOf(audio);
+            const button = document.querySelectorAll('.play-button')[index];
+            button.innerHTML = '<i class="fas fa-play"></i>';
+        }
+
+        function seek(event, index) {
+            const audio = audioElements[index];
+            const progressBar = event.currentTarget;
+            const percent = event.offsetX / progressBar.offsetWidth;
+            audio.currentTime = percent * audio.duration;
+            updateProgress({target: audio});
+        }
+    </script>
+</body>
+</html>
