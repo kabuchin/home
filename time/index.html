@@ -1,0 +1,529 @@
+<!DOCTYPE html> 
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>共通テストカウントダウン</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap');
+
+    :root {
+      --bg-gradient: linear-gradient(135deg, #1a1a1a, #333333);
+      --text-color: #00ffff;
+      --accent-color: #ff00ff;
+      --box-bg: rgba(0, 255, 255, 0.2);
+      --box-border: #00ffff;
+      --message-color: #00ff00;
+      --font-family: 'Orbitron', 'Noto Sans JP', sans-serif;
+      --countdown-size: 1;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background: var(--bg-gradient);
+      color: var(--text-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    .settings-icon {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 36px;
+      color: var(--text-color);
+      cursor: pointer;
+    }
+
+    .settings-popup {
+      display: none;
+      position: absolute;
+      top: 60px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.9);
+      padding: 20px;
+      border: 2px solid var(--box-border);
+      border-radius: 10px;
+      z-index: 1000;
+    }
+
+    .settings-popup label {
+      display: block;
+      margin-bottom: 10px;
+      color: var(--text-color);
+    }
+
+    .settings-popup select,
+    .settings-popup input[type="range"] {
+      width: 100%;
+      margin-bottom: 15px;
+    }
+
+    .container {
+      text-align: center;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 50px;
+      border: 2px solid var(--box-border);
+      border-radius: 15px;
+      box-shadow: 0 0 20px var(--box-border), 0 0 30px var(--box-border) inset;
+      transform: scale(var(--countdown-size));
+    }
+
+    h1 {
+      font-size: 64px;
+      margin-bottom: 40px;
+      color: var(--accent-color);
+      text-shadow: 0 0 10px var(--accent-color), 0 0 20px var(--accent-color);
+    }
+
+    #countdown {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+
+    .vertical #countdown {
+      flex-direction: column;
+    }
+
+    .time-box {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: var(--box-bg);
+      border: 2px solid var(--box-border);
+      border-radius: 10px;
+      width: 180px;
+      height: 180px;
+      box-shadow: 0 0 10px var(--box-border);
+      text-align: center;
+    }
+
+    .time-box .number-container {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      min-width: 140px;
+    }
+
+    .time-box span {
+      font-size: 56px;
+      color: #ffffff;
+      text-shadow: 0 0 10px #ffffff, 0 0 20px #ffffff;
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+    }
+
+    .time-box #seconds {
+      min-width: 84px;
+      text-align: right;
+    }
+
+    .time-box .small {
+      font-size: 28px;
+      margin-left: 2px;
+      min-width: 52px;
+      text-align: left;
+    }
+
+    .time-box p {
+      margin: 0;
+      margin-top: 10px;
+      font-size: 28px;
+      color: var(--text-color);
+    }
+
+    .message {
+      font-size: 36px;
+      color: var(--message-color);
+      text-shadow: 0 0 10px var(--message-color);
+      margin-bottom: 10px;
+    }
+
+    .author {
+      font-size: 28px;
+      color: var(--message-color);
+      text-shadow: 0 0 5px var(--message-color);
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+  <div class="settings-icon" id="settingsIcon">⚙️</div>
+  <div class="settings-popup" id="settingsPopup">
+    <label for="themeSelect">カラーテーマ</label>
+    <select id="themeSelect">
+      <option value="default">デフォルト</option>
+      <option value="dark">ダーク</option>
+      <option value="light">ライト</option>
+      <option value="blue">ブルー</option>
+    </select>
+    <label for="fontSelect">フォント</label>
+    <select id="fontSelect">
+      <option value="'Orbitron', 'Noto Sans JP', sans-serif">デフォルト</option>
+      <option value="'Noto Sans JP', sans-serif">Noto Sans JP</option>
+      <option value="'Arial', sans-serif">Arial</option>
+      <option value="'Times New Roman', serif">Times New Roman</option>
+    </select>
+    <label for="sizeRange">サイズ</label>
+    <input type="range" id="sizeRange" min="0.5" max="2" step="0.1" value="1">
+    <label for="layoutSelect">レイアウト</label>
+    <select id="layoutSelect">
+      <option value="horizontal">横並び</option>
+      <option value="vertical">縦並び</option>
+    </select>
+  </div>
+  <div class="container" id="container">
+    <h1>共通テストまであと</h1>
+    <div id="countdown">
+      <div class="time-box">
+        <span id="days">00</span>
+        <p>日</p>
+      </div>
+      <div class="time-box">
+        <span id="hours">00</span>
+        <p>時間</p>
+      </div>
+      <div class="time-box">
+        <span id="minutes">00</span>
+        <p>分</p>
+      </div>
+      <div class="time-box">
+        <div class="number-container">
+          <span id="seconds">00</span>
+          <span id="seconds-decimal" class="small">.00</span>
+        </div>
+        <p>秒</p>
+      </div>
+    </div>
+    <p class="message" id="message"></p>
+    <p class="author" id="author"></p>
+  </div>
+  <script>
+    // 名言データ（実際にはJSONファイルから読み込む）
+    const quotesData = {
+  "quotes": [
+    {
+      "message": "努力する人は希望を語り、怠ける人は不満を語る",
+      "author": "井上靖"
+    },
+    {
+      "message": "天才とは努力する凡才のことである",
+      "author": "アインシュタイン"
+    },
+    {
+      "message": "進まざる者は必ず退き、退かざる者は必ず進む",
+      "author": "福沢諭吉"
+    },
+    {
+      "message": "時間を浪費するな！人生は時間の積み重ねなのだから",
+      "author": "ベンジャミン・フランクリン"
+    },
+    {
+      "message": "誰よりも三倍、四倍、五倍勉強する者、それが天才だ",
+      "author": "野口英世"
+    },
+    {
+      "message": "小さなことを重ねることがとんでもないところに行くただひとつの道",
+      "author": "イチロー"
+    },
+    {
+      "message": "ここで負ければ誰かの養分、これは船の中も外も関係ねぇ　ざわ..ざわ...",
+      "author": "カイジ（『賭博黙示録カイジ』）"
+    },
+    {
+      "message": "真剣だからこそ、ぶつかる壁がある",
+      "author": "松岡修造"
+    },
+    {
+      "message": "努力すれば報われる？そうじゃないだろ。報われるまで努力するんだ",
+      "author": "リオネル・メッシ"
+    },
+    {
+      "message": "簡単は選べない。サボらない。決して辞めない。恐れない。あなたが生まれながらに持つ才能、能力は練習の積み重ねでしか開花しない",
+      "author": "ウサイン・ボルト"
+    },
+    {
+      "message": "諦めたらそこで試合終了ですよ",
+      "author": "安西先生（『SLAM DUNK』）"
+    },
+    {
+      "message": "一番いけないのは自分なんかダメだと思い込むことだよ",
+      "author": "ドラえもん（『ドラえもん』）"
+    },
+    {
+      "message": "自分を信じない奴なんかに努力する価値はない!!!",
+      "author": "マイト・ガイ（『NARUTO』）"
+    },
+    {
+      "message": "俺の敵はだいたい俺です",
+      "author": "南波六太（『宇宙兄弟』）"
+    },
+    {
+      "message": "迷った末に出した答えはどちらを選んでも後悔するもの。どうせ後悔するのなら、今が楽ちんな方を選びなさい。",
+      "author": "駄女神 アクア（『この素晴らしい世界に祝福を』）"
+    },
+    {
+      "message": "来いよ '高み'へ",
+      "author": "ポートガス・D・エース（『ONE PIECE』）"
+    },
+    {
+      "message": "俺は今なんだよ！",
+      "author": "桜木花道（『SLAM DUNK』）"
+    },
+    {
+      "message": "海賊王に俺はなる！",
+      "author": "ルフィ（『ONE PIECE』）"
+    },
+    {
+      "message": "駆逐してやる！",
+      "author": "エレン・イェーガー（『進撃の巨人』）"
+    },
+    {
+      "message": "俺は火影になる！",
+      "author": "ナルト（『NARUTO』）"
+    },
+    {
+      "message": "明日死ぬかのように生きよ。永遠に生きるかのように学べ。",
+      "author": "マハトマ・ガンジー"
+    },
+    {
+      "message": "私は失敗したことがない。ただ、1万通りのうまくいかない方法を見つけただけだ。",
+      "author": "トーマス・エジソン"
+    },
+    {
+      "message": "人生は大胆な冒険か、無か、そのどちらかである。",
+      "author": "ヘレン・ケラー"
+    },
+    {
+      "message": "あなたの時間は限られている。他人の人生を生きることで無駄にしてはいけない。",
+      "author": "スティーブ・ジョブズ"
+    },
+    {
+      "message": "夢を追い求める勇気があるなら、すべての夢は実現できる。",
+      "author": "ウォルト・ディズニー"
+    },
+    {
+      "message": "私は9,000回以上のシュートを外し、300試合以上で敗北した。26回、決勝シュートを任されて失敗した。私は何度も何度も失敗してきた。だから成功したのだ。",
+      "author": "マイケル・ジョーダン"
+    },
+    {
+      "message": "チャンピオンは、彼らが望むことを達成するまでプレーし続ける。",
+      "author": "セリーナ・ウィリアムズ"
+    },
+    {
+      "message": "成功は一夜にして成し遂げられるものではない。それは日々の努力の積み重ねだ。",
+      "author": "タイガー・ウッズ"
+    },
+    {
+      "message": "才能は重要だが、それ以上に努力が重要だ。",
+      "author": "クリスティアーノ・ロナウド"
+    },
+    {
+      "message": "完璧を目指すことは、決して無駄ではない。",
+      "author": "ナディア・コマネチ"
+    },
+    {
+      "message": "オラ、ワクワクすっぞ！",
+      "author": "孫悟空（『ドラゴンボール』）"
+    },
+    {
+      "message": "人は何かの犠牲なしに何も得ることはできない。",
+      "author": "エドワード・エルリック（『鋼の錬金術師』）"
+    },
+    {
+      "message": "海賊王に俺はなる！",
+      "author": "ルフィ（『ONE PIECE』）"
+    },
+    {
+      "message": "俺は火影になる！",
+      "author": "ナルト（『NARUTO』）"
+    },
+    {
+      "message": "俺は今なんだよ！",
+      "author": "桜木花道（『SLAM DUNK』）"
+    },
+    {
+      "message": "アクシズ教徒はやればできる。できる子たちなのだから、上手く行かなくてもそれはあなたのせいじゃない。上手くいかないのは世間が悪い。",
+      "author": "駄女神　アクア（『この素晴らしい世界に祝福を』）"
+    },
+        {
+          "message": "私は失敗したことがない。ただ、1万通りのうまくいかない方法を見つけただけだ。",
+          "author": "トーマス・エジソン"
+        },
+        {
+          "message": "人生は大胆な冒険か、無か、そのどちらかである。",
+          "author": "ヘレン・ケラー"
+        },
+        {
+          "message": "あなたの時間は限られている。他人の人生を生きることで無駄にしてはいけない。",
+          "author": "スティーブ・ジョブズ"
+        },
+        {
+          "message": "夢を追い求める勇気があるなら、すべての夢は実現できる。",
+          "author": "ウォルト・ディズニー"
+        },
+        {
+          "message": "私は9,000回以上のシュートを外し、300試合以上で敗北した。26回、決勝シュートを任されて失敗した。私は何度も何度も失敗してきた。だから成功したのだ。",
+          "author": "マイケル・ジョーダン"
+        },
+        {
+          "message": "チャンピオンは、彼らが望むことを達成するまでプレーし続ける。",
+          "author": "セリーナ・ウィリアムズ"
+        },
+        {
+          "message": "成功は一夜にして成し遂げられるものではない。それは日々の努力の積み重ねだ。",
+          "author": "タイガー・ウッズ"
+        },
+        {
+          "message": "才能は重要だが、それ以上に努力が重要だ。",
+          "author": "クリスティアーノ・ロナウド"
+        },
+        {
+          "message": "完璧を目指すことは、決して無駄ではない。",
+          "author": "ナディア・コマネチ"
+        },
+        {
+          "message": "オラ、ワクワクすっぞ！",
+          "author": "孫悟空（『ドラゴンボール』）"
+        },
+        {
+          "message": "人は何かの犠牲なしに何も得ることはできない。",
+          "author": "エドワード・エルリック（『鋼の錬金術師』）"
+        }
+    ]
+};
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const eventDate = new Date('2025-01-18T09:30:00');
+
+      const updateQuote = () => {
+        const now = new Date();
+        const daysUntilEvent = Math.ceil((eventDate - now) / (1000 * 60 * 60 * 24));
+
+        // 60日前から開始して、日付が変わるごとに次の名言に進む
+        const quoteIndex = Math.max(0, Math.min(59, 60 - daysUntilEvent)) % quotesData.quotes.length;
+        const quote = quotesData.quotes[quoteIndex];
+
+        document.getElementById('message').textContent = quote.message;
+        document.getElementById('author').textContent = `by. ${quote.author}`;
+      };
+
+      const countdown = () => {
+        const now = new Date().getTime();
+        const remainingTime = eventDate - now;
+
+        if (remainingTime < 0) {
+          document.getElementById('countdown').innerHTML = '<p>さぁ、時は来た...</p>';
+          return;
+        }
+
+        const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = (remainingTime % (1000 * 60)) / 1000;
+
+        document.getElementById('days').textContent = String(days).padStart(2, '0');
+        document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+        document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+        document.getElementById('seconds').textContent = String(Math.floor(seconds)).padStart(2, '0');
+        document.getElementById('seconds-decimal').textContent = '.' + String(seconds.toFixed(2).split('.')[1]).padEnd(2, '0');
+      };
+
+      // 初期表示
+      updateQuote();
+      countdown();
+
+      // 定期更新
+      setInterval(countdown, 10);
+      // 1分ごとに名言を更新（日付が変わったかチェック）
+      setInterval(updateQuote, 60000);
+
+      // 設定関連の処理
+      const settingsIcon = document.getElementById('settingsIcon');
+      const settingsPopup = document.getElementById('settingsPopup');
+      const themeSelect = document.getElementById('themeSelect');
+      const fontSelect = document.getElementById('fontSelect');
+      const sizeRange = document.getElementById('sizeRange');
+      const layoutSelect = document.getElementById('layoutSelect');
+      const container = document.getElementById('container');
+      const body = document.body;
+
+      settingsIcon.addEventListener('click', () => {
+        settingsPopup.style.display = settingsPopup.style.display === 'block' ? 'none' : 'block';
+      });
+
+      // カラーテーマの変更
+      themeSelect.addEventListener('change', (e) => {
+        switch (e.target.value) {
+          case 'default':
+            document.documentElement.style.setProperty('--bg-gradient', 'linear-gradient(135deg, #1a1a1a, #333333)');
+            document.documentElement.style.setProperty('--text-color', '#00ffff');
+            document.documentElement.style.setProperty('--accent-color', '#ff00ff');
+            document.documentElement.style.setProperty('--box-bg', 'rgba(0, 255, 255, 0.2)');
+            document.documentElement.style.setProperty('--box-border', '#00ffff');
+            document.documentElement.style.setProperty('--message-color', '#00ff00');
+            break;
+          case 'dark':
+            document.documentElement.style.setProperty('--bg-gradient', 'linear-gradient(135deg, #000000, #222222)');
+            document.documentElement.style.setProperty('--text-color', '#ffffff');
+            document.documentElement.style.setProperty('--accent-color', '#ff0000');
+            document.documentElement.style.setProperty('--box-bg', 'rgba(255, 255, 255, 0.1)');
+            document.documentElement.style.setProperty('--box-border', '#ffffff');
+            document.documentElement.style.setProperty('--message-color', '#ff0000');
+            break;
+          case 'light':
+            document.documentElement.style.setProperty('--bg-gradient', 'linear-gradient(135deg, #ffffff, #dddddd)');
+            document.documentElement.style.setProperty('--text-color', '#000000');
+            document.documentElement.style.setProperty('--accent-color', '#0000ff');
+            document.documentElement.style.setProperty('--box-bg', 'rgba(0, 0, 0, 0.1)');
+            document.documentElement.style.setProperty('--box-border', '#000000');
+            document.documentElement.style.setProperty('--message-color', '#0000ff');
+            break;
+          case 'blue':
+            document.documentElement.style.setProperty('--bg-gradient', 'linear-gradient(135deg, #004080, #001040)');
+            document.documentElement.style.setProperty('--text-color', '#00ffff');
+            document.documentElement.style.setProperty('--accent-color', '#ffff00');
+            document.documentElement.style.setProperty('--box-bg', 'rgba(0, 255, 255, 0.2)');
+            document.documentElement.style.setProperty('--box-border', '#00ffff');
+            document.documentElement.style.setProperty('--message-color', '#ffff00');
+            break;
+        }
+      });
+
+      // フォントの変更
+      fontSelect.addEventListener('change', (e) => {
+        document.documentElement.style.setProperty('--font-family', e.target.value);
+      });
+
+      // サイズの変更
+      sizeRange.addEventListener('input', (e) => {
+        document.documentElement.style.setProperty('--countdown-size', e.target.value);
+      });
+
+      // レイアウトの変更
+      layoutSelect.addEventListener('change', (e) => {
+        if (e.target.value === 'vertical') {
+          container.classList.add('vertical');
+        } else {
+          container.classList.remove('vertical');
+        }
+      });
+
+      // ページ外クリックでポップアップを閉じる
+      document.addEventListener('click', (e) => {
+        if (!settingsPopup.contains(e.target) && e.target !== settingsIcon) {
+          settingsPopup.style.display = 'none';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
